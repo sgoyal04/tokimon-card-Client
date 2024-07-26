@@ -169,11 +169,8 @@ public class ClientApplication extends Application {
                 //displayText.append(tokimon.toString()).append("\n");
                 displayText.append(tokimon.getName());
 
-
-
             }
            testServer.setText(displayText.toString());
-
 
             connection.disconnect();
         } catch (Exception e) {
@@ -181,22 +178,6 @@ public class ClientApplication extends Application {
             testServer.setText("Error: " + e.getMessage());
             System.out.println(e.getMessage());
         }
-
-//            connection.getInputStream();
-//            BufferedReader br = new BufferedReader(
-//                    new InputStreamReader(connection.getInputStream())
-//            );
-//            String output = br.readLine();
-//            System.out.println(output);
-//            System.out.println(connection.getResponseCode());
-//
-//
-//            testServer.setText(output);
-//            connection.disconnect();
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
 
 
         //Add heading and tokimons to the display board

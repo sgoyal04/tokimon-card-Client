@@ -166,14 +166,20 @@ public class ClientApplication extends Application {
             // Display the data
             StringBuilder displayText = new StringBuilder();
             for (Tokimon tokimon : tokimonList) {
-                displayText.append(tokimon.toString()).append("\n");
+                //displayText.append(tokimon.toString()).append("\n");
+                displayText.append(tokimon.getName());
+
+
+
             }
-            testServer.setText(displayText.toString());
+           testServer.setText(displayText.toString());
+
 
             connection.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
             testServer.setText("Error: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
 
 //            connection.getInputStream();

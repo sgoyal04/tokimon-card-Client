@@ -3,21 +3,23 @@ package ca.cmpt213.asn5.client;
 public class Tokimon {
     //static private int total;
     public long tid;
-    private String name;
-    private String imagePath;
-    private String type;
-    private int rarityScore;
+    public String name;
+    public String imagePath;
+    public String type;
+    public int rarityScore;
 
-    public Tokimon(){
+    public Tokimon() {
 
     }
-    public Tokimon(String name, String type){
-        this.name=name;
-        this.type=type;
-        this.rarityScore=0;
+
+    public Tokimon(String name, String type) {
+        this.name = name;
+        this.type = type;
+        this.rarityScore = 0;
         //this.tid = total++;
         imagePath = null;
     }
+
     public Tokimon(String imagePath, String name, String type, int rarityScore) {
         //this.tid = ++total;
         this.imagePath = imagePath;
@@ -29,6 +31,7 @@ public class Tokimon {
     public long getTid() {
         return tid;
     }
+
     public void setTid(long tid) {
         this.tid = tid;
     }
@@ -36,6 +39,7 @@ public class Tokimon {
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -43,6 +47,7 @@ public class Tokimon {
     public String getImagePath() {
         return imagePath;
     }
+
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
@@ -50,6 +55,7 @@ public class Tokimon {
     public String getType() {
         return type;
     }
+
     public void setType(String type) {
         this.type = type;
     }
@@ -57,8 +63,15 @@ public class Tokimon {
     public int getRarityScore() {
         return rarityScore;
     }
+
     public void setRarityScore(int rarityScore) {
         this.rarityScore = rarityScore;
     }
 
+    @Override
+    public String toString() {
+
+        return "Tokimon={id=" + tid + " name=" + name + " imagePath=" + imagePath +
+                " type=" + type + " rarity=" + rarityScore + "}";
+    }
 }

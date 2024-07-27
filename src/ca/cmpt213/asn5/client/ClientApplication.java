@@ -54,7 +54,6 @@ public class ClientApplication extends Application {
 
         Button showTokimons = new Button("Show Tokimons");
         showTokimons.setOnAction(new EventHandler<ActionEvent>() {
-
             @Override
             public void handle(ActionEvent actionEvent) {
                 //TODO: clear padding on action board
@@ -100,7 +99,6 @@ public class ClientApplication extends Application {
 
     /**
      * This function insert add tokimon controls on the display board
-     *
      * @param actionBoard a grid pane used to display add tokimon controls
      */
     private void addTokimonControls(GridPane actionBoard) {
@@ -112,7 +110,6 @@ public class ClientApplication extends Application {
         //Creates controls for the actions board
         Label image = new Label("Image");
         image.setFont(Font.font("Sans", FontWeight.BOLD, FontPosture.REGULAR, 15));
-
         Label name = new Label("Name");
         name.setFont(Font.font("Sans", FontWeight.BOLD, FontPosture.REGULAR, 15));
         Label type = new Label("Type");
@@ -120,7 +117,7 @@ public class ClientApplication extends Application {
         Label rarity = new Label("Rarity");
         rarity.setFont(Font.font("Sans", FontWeight.BOLD, FontPosture.REGULAR, 15));
 
-        //TODO: Create text box for the image, name, type and rarity
+        //Creates text field to collect tokimon information
         TextField imageTextField = new TextField();
         TextField nameTextField = new TextField();
         TextField typeTextField = new TextField();
@@ -132,10 +129,10 @@ public class ClientApplication extends Application {
         HBox typeBox = new HBox(10, type, typeTextField);
         HBox rarityBox = new HBox(10, rarity, rarityTextField);
 
-        Button sumbit = new Button("Submit");
+        Button submit = new Button("Submit");
 
 
-        sumbit.setOnAction(new EventHandler<ActionEvent>() {
+        submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 Label success = new Label("Tokimon successfully added!");
@@ -198,10 +195,12 @@ public class ClientApplication extends Application {
         actionBoard.add(nameBox, 3, 2);
         actionBoard.add(typeBox, 3, 3);
         actionBoard.add(rarityBox, 3, 4);
-        actionBoard.add(sumbit,3,5);
+        actionBoard.add(submit,3,5);
         actionBoard.setPadding(new Insets(10, 100, 10, 450));
 
     }
+
+
 
     /**
      * This function inserts all the tokimon cards to the display board
@@ -266,7 +265,7 @@ public class ClientApplication extends Application {
 
     /**
      * This function returns a single vbox(tokimon card) created for a given tokimon.
-     * @param tokimon a tokimon
+     * @param tokimon a tokimon object
      * @return vbox of a tokimon card
      */
     public VBox getVbox(Tokimon tokimon){
@@ -321,19 +320,14 @@ public class ClientApplication extends Application {
             // Parse JSON using Gson
             Gson gson = new Gson();
             Type tokimonListType = new TypeToken<List<Tokimon>>(){}.getType();
-          
             tokimonList = gson.fromJson(jsonOutput.toString(), tokimonListType);
-
-            List<Tokimon> tokimonList = gson.fromJson(jsonOutput.toString(), tokimonListType);
      
             connection.disconnect();
           
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return tokimonList;
-
     }
 
 }

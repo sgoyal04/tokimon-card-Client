@@ -2,5 +2,8 @@
 Client Side
 
 TODO:
-1) Create a separate function to display tokimon card.
-2) 
+1) Divide AddTokimonControlls function into sub functions.
+2) Create a function for view card.
+3) Create a function for delete card.
+4) Create a function for edit card.
+5) Add javadoc comments to each class and each method.

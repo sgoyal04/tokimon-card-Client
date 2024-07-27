@@ -244,11 +244,8 @@ public class ClientApplication extends Application {
                 //displayText.append(tokimon.toString()).append("\n");
                 displayText.append(tokimon.getName());
 
-
-
             }
            testServer.setText(displayText.toString());
-
 
             connection.disconnect();
         } catch (Exception e) {

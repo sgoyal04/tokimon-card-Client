@@ -11,7 +11,9 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -21,6 +23,7 @@ import javafx.stage.Stage;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
@@ -107,6 +110,7 @@ public class ClientApplication extends Application {
         //Creates controls for the actions board
         Label image = new Label("Image");
         image.setFont(Font.font("Sans", FontWeight.BOLD, FontPosture.REGULAR, 15));
+
         Label name = new Label("Name");
         name.setFont(Font.font("Sans", FontWeight.BOLD, FontPosture.REGULAR, 15));
         Label type = new Label("Type");
@@ -115,14 +119,84 @@ public class ClientApplication extends Application {
         rarity.setFont(Font.font("Sans", FontWeight.BOLD, FontPosture.REGULAR, 15));
 
         //TODO: Create text box for the image, name, type and rarity
+        TextField imageTextField = new TextField();
+        TextField nameTextField = new TextField();
+        TextField typeTextField = new TextField();
+        TextField rarityTextField = new TextField();
+
+        HBox headingBox = new HBox(10, heading);
+        HBox imageBox = new HBox(10, image, imageTextField);
+        HBox nameBox = new HBox(10, name, nameTextField);
+        HBox typeBox = new HBox(10, type, typeTextField);
+        HBox rarityBox = new HBox(10, rarity, rarityTextField);
+
+        Button sumbit = new Button("Submit");
+
+
+        sumbit.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Label success = new Label("Tokimon successfully added!");
+
+                String imageText = imageTextField.getText();
+                String nameText = nameTextField.getText();
+                String typeText = typeTextField.getText();
+                String rarityText = rarityTextField.getText();
+                try {
+                    URI uri = new URI("http://localhost:8080/tokimon/add");
+                    URL url = uri.toURL();
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setDoOutput(true);
+                    connection.setRequestProperty("Content-Type", "application/json");
+
+                    Tokimon newTokimon = new Tokimon();
+                    newTokimon.setImagePath(imageText);
+                    newTokimon.setName(nameText);
+                    newTokimon.setType(typeText);
+                    newTokimon.setRarityScore(Integer.parseInt(rarityText));
+
+                    // Convert Tokimon object to JSON
+                    Gson gson = new Gson();
+                    String json = gson.toJson(newTokimon);
+
+                    // Send JSON to the server
+                    OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
+                    wr.write(json);
+                    wr.flush();
+                    wr.close();
+
+                    connection.connect();
+                    System.out.println(connection.getResponseCode());
+                    connection.disconnect();
+
+
+                    // Clear the text fields
+                    imageTextField.clear();
+                    nameTextField.clear();
+                    typeTextField.clear();
+                    rarityTextField.clear();
+
+                    // Display the success label
+                    actionBoard.getChildren().remove(success); // Remove previous success label if any
+                    actionBoard.add(success, 3, 6); // Add success label to the action board
+
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
 
         //Add all the control components to the action board
-        actionBoard.add(heading, 5, 0);
-        actionBoard.add(image, 3, 1);
-        actionBoard.add(name, 3, 2);
-        actionBoard.add(type, 3, 3);
-        actionBoard.add(rarity, 3, 4);
+        actionBoard.add(headingBox, 5, 0);
+        actionBoard.add(imageBox, 3, 1);
+
+        actionBoard.add(nameBox, 3, 2);
+        actionBoard.add(typeBox, 3, 3);
+        actionBoard.add(rarityBox, 3, 4);
+        actionBoard.add(sumbit,3,5);
         actionBoard.setPadding(new Insets(10, 100, 10, 450));
 
     }
@@ -162,6 +236,7 @@ public class ClientApplication extends Application {
             Gson gson = new Gson();
             Type tokimonListType = new TypeToken<List<Tokimon>>(){}.getType();
             List<Tokimon> tokimonList = gson.fromJson(jsonOutput.toString(), tokimonListType);
+            int size = tokimonList.size();
 
             // Display the data
             StringBuilder displayText = new StringBuilder();
@@ -179,12 +254,10 @@ public class ClientApplication extends Application {
             System.out.println(e.getMessage());
         }
 
-
         //Add heading and tokimons to the display board
         //TODO: Add tokimons to the display board
         actionBoard.add(heading, 6, 0);
         actionBoard.add(testServer, 0,1);
-
 
     }
 

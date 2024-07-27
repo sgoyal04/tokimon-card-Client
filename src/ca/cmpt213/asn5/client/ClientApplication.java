@@ -265,7 +265,7 @@ public class ClientApplication extends Application {
 
     /**
      * This function returns a single vbox(tokimon card) created for a given tokimon.
-     * @param tokimon a tokimon
+     * @param tokimon a tokimon object
      * @return vbox of a tokimon card
      */
     public VBox getVbox(Tokimon tokimon){

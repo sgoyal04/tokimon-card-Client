@@ -2,7 +2,6 @@ package ca.cmpt213.asn5.client;
 
 import com.google.gson.Gson;
 
-
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -11,6 +10,8 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -18,7 +19,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
@@ -29,7 +29,7 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,8 +58,9 @@ public class ClientApplication extends Application {
             @Override
             public void handle(ActionEvent actionEvent) {
                 //TODO: clear padding on action board
+                actionBoard.setPadding(new Insets(0));
                 actionBoard.getChildren().clear();      //Clear the grid pane before displaying all the tokimons
-                displayAllTokimons(actionBoard);       // display all the tokimons on the action board
+                displayAllTokiCards(actionBoard);       // display all the tokimons on the action board
 
             }
         });
@@ -69,6 +70,7 @@ public class ClientApplication extends Application {
             @Override
             public void handle(ActionEvent actionEvent) {
                 //TODO: clear padding on action board
+                actionBoard.setPadding(new Insets(0));
                 actionBoard.getChildren().clear();  //Clear the grid pane before displaying all the tokimons
                 addTokimonControls(actionBoard);   //display the add tokimons controls on the action board.
 
@@ -202,19 +204,103 @@ public class ClientApplication extends Application {
     }
 
     /**
-     * This function inserts all the tokimons to the display board
-     *
+     * This function inserts all the tokimon cards to the display board
      * @param actionBoard a grid pane used to display all the tokimons.
      */
-    private void displayAllTokimons(GridPane actionBoard) {
+    private void displayAllTokiCards(GridPane actionBoard) {
 
         //Creates a heading for the action board
         Label heading = new Label("Tokimons");
         heading.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.REGULAR, 20));
 
+        //Creates a list of tokimons
+        List<Tokimon> tokimonList = getTokimonsFromServer();
 
-        //TODO: Get tokimons from database
-        Label testServer = new Label();
+        //Creates a 2d array of tokimon cards
+        VBox[][] tokimonCards = getTokimonCards(tokimonList);
+
+        //Add heading and tokimon cards to the display board
+        actionBoard.add(heading, 6, 0);
+        for(int i = 0; i < tokimonCards.length; i++) {
+            for(int j = 0; j < tokimonCards[i].length; j++) {
+                if(tokimonCards[i][j] != null) {
+                    actionBoard.add(tokimonCards[i][j], i,j+1);
+                }
+            }
+        }
+        actionBoard.setPadding(new Insets(10, 100, 10, 200));
+    }
+
+    /**
+     * This function returns a 2d array of tokimon cards
+     * @param tokimonList a list of tokimons
+     * @return a 2d array of vboxes (tokimon cards)
+     */
+    public VBox[][] getTokimonCards(List<Tokimon> tokimonList) {
+
+        //Creates an array of tokimon cards
+        VBox [] cards = new VBox[tokimonList.size()];
+        for(int i=0; i<tokimonList.size(); i++) {
+            Tokimon tokimon = tokimonList.get(i);
+            VBox card = getVbox(tokimon);       //Creates a tokimon card
+            cards[i] = card;
+        }
+
+        //Creates a 2d array of tokimon cards
+        VBox[][] tokimonCards = new VBox[5][cards.length];
+        int rowLength = cards.length/5;     //Calculates row length based on total number of tokimon cards
+        if(cards.length%5 != 0) {
+            rowLength++;
+        }
+        int cardIndex = 0;
+        for(int i=0; i<rowLength; i++) {
+            for(int j=0; j<5; j++) {
+                if(cardIndex == cards.length) {     //ends the loop after adding all cards to 2d array
+                    break;
+                }
+                tokimonCards[i][j] = cards[cardIndex++];
+            }
+        }
+        return tokimonCards;
+    }
+
+    /**
+     * This function returns a single vbox(tokimon card) created for a given tokimon.
+     * @param tokimon a tokimon
+     * @return vbox of a tokimon card
+     */
+    public VBox getVbox(Tokimon tokimon){
+
+        //Label for name
+        Label name = new Label(tokimon.getName());
+
+        //Imageview for tokimon image
+        ImageView img = new ImageView(new Image("file:https://images.app.goo.gl/Jp72LusHZGgPkdbZ9"));
+        img.setFitHeight(30);
+        img.setPreserveRatio(true);
+
+        //Controls to view full tokimon data or delete tokimon card
+        Button view = new Button("View");
+        Button delete = new Button("Delete");
+        HBox hBox = new HBox(view, delete);
+
+        //Adding all the components to a vbox to make tokimon card
+        VBox vbox = new VBox();
+        vbox.getChildren().add(name);
+        vbox.getChildren().add(img);
+        vbox.getChildren().add(hBox);
+
+        return vbox;
+    }
+
+    /**
+     * This function fetch all the tokimons from the server.
+     * @return a list of all the tokimons.
+     */
+    public List<Tokimon> getTokimonsFromServer(){
+
+        //Creates a list of all the tokimons
+        List<Tokimon> tokimonList = new ArrayList<>();
         try {
             URI uri = new URI("http://localhost:8080/tokimon/all");
             URL url = uri.toURL();
@@ -235,29 +321,18 @@ public class ClientApplication extends Application {
             // Parse JSON using Gson
             Gson gson = new Gson();
             Type tokimonListType = new TypeToken<List<Tokimon>>(){}.getType();
+          
+            tokimonList = gson.fromJson(jsonOutput.toString(), tokimonListType);
+
             List<Tokimon> tokimonList = gson.fromJson(jsonOutput.toString(), tokimonListType);
-            int size = tokimonList.size();
-
-            // Display the data
-            StringBuilder displayText = new StringBuilder();
-            for (Tokimon tokimon : tokimonList) {
-                //displayText.append(tokimon.toString()).append("\n");
-                displayText.append(tokimon.getName());
-
-            }
-           testServer.setText(displayText.toString());
-
+     
             connection.disconnect();
+          
         } catch (Exception e) {
             e.printStackTrace();
-            testServer.setText("Error: " + e.getMessage());
-            System.out.println(e.getMessage());
         }
 
-        //Add heading and tokimons to the display board
-        //TODO: Add tokimons to the display board
-        actionBoard.add(heading, 6, 0);
-        actionBoard.add(testServer, 0,1);
+        return tokimonList;
 
     }
 

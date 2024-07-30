@@ -8,20 +8,11 @@ public class Tokimon {
     public String type;
     public int rarityScore;
 
-    public Tokimon() {
+    public Tokimon(){
 
-    }
-
-    public Tokimon(String name, String type) {
-        this.name = name;
-        this.type = type;
-        this.rarityScore = 0;
-        //this.tid = total++;
-        imagePath = null;
     }
 
     public Tokimon(String imagePath, String name, String type, int rarityScore) {
-        //this.tid = ++total;
         this.imagePath = imagePath;
         this.name = name;
         this.type = type;

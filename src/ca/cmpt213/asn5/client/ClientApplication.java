@@ -24,7 +24,6 @@ import javafx.stage.Stage;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -277,12 +276,18 @@ public class ClientApplication extends Application {
         Label name = new Label(tokimon.getName());
 
         //Imageview for tokimon image
-        ImageView img = new ImageView(new Image("file:https://images.app.goo.gl/Jp72LusHZGgPkdbZ9"));
+        ImageView img = new ImageView(new Image("file:" + tokimon.getImagePath()));
         img.setFitHeight(30);
         img.setPreserveRatio(true);
 
         //Controls to view full tokimon data or delete tokimon card
         Button view = new Button("View");
+        view.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                viewTokimonDetails(tokimon,actionBoard);
+            }
+        });
         Button delete = new Button("Delete");
 
         //delete tokimon from the server
@@ -379,6 +384,28 @@ public class ClientApplication extends Application {
     private void refreshTokimonCards(GridPane actionBoard) {
         actionBoard.getChildren().clear(); // Clear the grid pane before displaying all the tokimons
         displayAllTokiCards(actionBoard);  // Display all the tokimons on the action board
+    }
+
+    /**
+     * This function displays the complete details of the tokimon.
+     * @param tokimon a tokimon
+     * @param actionBoard   grid pane to display tokimon details.
+     */
+    public void viewTokimonDetails(Tokimon tokimon,GridPane actionBoard){
+
+        Label name = new Label(tokimon.getName());
+        ImageView img = new ImageView(new Image("file:" + tokimon.getImagePath()));
+        Label type = new Label("Type: " + tokimon.getType());
+        Label rarity = new Label( "Rarity Score" + tokimon.getRarityScore());
+        VBox vbox = new VBox(name,img,type,rarity);
+        vbox.setSpacing(10);
+        vbox.setPadding(new Insets(10, 50, 10, 50));
+
+        Scene scene = new Scene(vbox,300,300);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.setTitle(tokimon.getName());
+        stage.show();
     }
 
 }

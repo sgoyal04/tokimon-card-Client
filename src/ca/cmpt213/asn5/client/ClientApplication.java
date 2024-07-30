@@ -276,7 +276,8 @@ public class ClientApplication extends Application {
         Label name = new Label(tokimon.getName());
 
         //Imageview for tokimon image
-        ImageView img = new ImageView(new Image("file:" + tokimon.getImagePath()));
+        ImageView img = new ImageView(new Image(tokimon.getImagePath()));
+        //System.out.println(tokimon.getImagePath());
         img.setFitHeight(30);
         img.setPreserveRatio(true);
 
@@ -394,7 +395,7 @@ public class ClientApplication extends Application {
     public void viewTokimonDetails(Tokimon tokimon,GridPane actionBoard){
 
         Label name = new Label(tokimon.getName());
-        ImageView img = new ImageView(new Image("file:" + tokimon.getImagePath()));
+        ImageView img = new ImageView(new Image(tokimon.getImagePath()));
         Label type = new Label("Type: " + tokimon.getType());
         Label rarity = new Label( "Rarity Score" + tokimon.getRarityScore());
         VBox vbox = new VBox(name,img,type,rarity);

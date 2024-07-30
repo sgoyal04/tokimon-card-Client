@@ -223,11 +223,14 @@ public class ClientApplication extends Application {
         for(int i = 0; i < tokimonCards.length; i++) {
             for(int j = 0; j < tokimonCards[i].length; j++) {
                 if(tokimonCards[i][j] != null) {
-                    actionBoard.add(tokimonCards[i][j], i,j+1);
+                    actionBoard.add(tokimonCards[i][j], j,i+1);
                 }
             }
         }
         actionBoard.setPadding(new Insets(10, 100, 10, 200));
+        actionBoard.setVgap(20);
+        actionBoard.setHgap(20);
+
     }
 
     /**
@@ -282,6 +285,7 @@ public class ClientApplication extends Application {
         Button view = new Button("View");
         Button delete = new Button("Delete");
         HBox hBox = new HBox(view, delete);
+        hBox.setSpacing(10);
 
         //Adding all the components to a vbox to make tokimon card
         VBox vbox = new VBox();

@@ -108,7 +108,7 @@ public class ClientApplication extends Application {
         heading.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.REGULAR, 20));
 
         //Creates controls for the actions board
-        Label image = new Label("Image");
+        Label image = new Label("Image URL");
         image.setFont(Font.font("Sans", FontWeight.BOLD, FontPosture.REGULAR, 15));
         Label name = new Label("Name");
         name.setFont(Font.font("Sans", FontWeight.BOLD, FontPosture.REGULAR, 15));
@@ -177,8 +177,8 @@ public class ClientApplication extends Application {
                     rarityTextField.clear();
 
                     // Display the success label
-                    actionBoard.getChildren().remove(success); // Remove previous success label if any
-                    actionBoard.add(success, 3, 6); // Add success label to the action board
+                    actionBoard.getChildren().remove(success);
+                    actionBoard.add(success, 3, 6);
 
                 }
                 catch (Exception e) {
@@ -216,7 +216,7 @@ public class ClientApplication extends Application {
         List<Tokimon> tokimonList = getTokimonsFromServer();
 
         //Creates a 2d array of tokimon cards
-        VBox[][] tokimonCards = getTokimonCards(tokimonList);
+        VBox[][] tokimonCards = getTokimonCards(tokimonList, actionBoard);
 
         //Add heading and tokimon cards to the display board
         actionBoard.add(heading, 6, 0);
@@ -235,13 +235,13 @@ public class ClientApplication extends Application {
      * @param tokimonList a list of tokimons
      * @return a 2d array of vboxes (tokimon cards)
      */
-    public VBox[][] getTokimonCards(List<Tokimon> tokimonList) {
+    public VBox[][] getTokimonCards(List<Tokimon> tokimonList, GridPane actionBoard) {
 
         //Creates an array of tokimon cards
         VBox [] cards = new VBox[tokimonList.size()];
         for(int i=0; i<tokimonList.size(); i++) {
             Tokimon tokimon = tokimonList.get(i);
-            VBox card = getVbox(tokimon);       //Creates a tokimon card
+            VBox card = getVbox(tokimon, actionBoard);       //Creates a tokimon card
             cards[i] = card;
         }
 
@@ -268,7 +268,7 @@ public class ClientApplication extends Application {
      * @param tokimon a tokimon object
      * @return vbox of a tokimon card
      */
-    public VBox getVbox(Tokimon tokimon){
+    public VBox getVbox(Tokimon tokimon, GridPane actionBoard){
 
         //Label for name
         Label name = new Label(tokimon.getName());
@@ -281,6 +281,15 @@ public class ClientApplication extends Application {
         //Controls to view full tokimon data or delete tokimon card
         Button view = new Button("View");
         Button delete = new Button("Delete");
+
+        //delete tokimon from the server
+        delete.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                deleteTokimonFromServer(tokimon, actionBoard);
+            }
+        });
+
         HBox hBox = new HBox(view, delete);
 
         //Adding all the components to a vbox to make tokimon card
@@ -290,6 +299,8 @@ public class ClientApplication extends Application {
         vbox.getChildren().add(hBox);
 
         return vbox;
+
+
     }
 
     /**
@@ -328,6 +339,42 @@ public class ClientApplication extends Application {
             e.printStackTrace();
         }
         return tokimonList;
+    }
+
+    /**
+     * This function acts as an event handler and deletes the tokimon from the server.
+     * @param tokimon the tokimon needed to be deleted
+     * @param actionBoard where the tokimon cards are being displayed
+     */
+    private void deleteTokimonFromServer(Tokimon tokimon, GridPane actionBoard) {
+        try {
+            URI uri = new URI("http://localhost:8080/tokimon/"+tokimon.getTid());
+            URL url = uri.toURL();
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("DELETE");
+            connection.connect();
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_NO_CONTENT) {
+                System.out.println("Tokimon deleted successfully!");
+                refreshTokimonCards(actionBoard);
+            } else {
+                System.out.println("Failed");
+            }
+
+            connection.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * this function refreshes the tokimon cards after deleting
+     * @param actionBoard where the tokimon cards are being displayed
+     */
+    private void refreshTokimonCards(GridPane actionBoard) {
+        actionBoard.getChildren().clear(); // Clear the grid pane before displaying all the tokimons
+        displayAllTokiCards(actionBoard);  // Display all the tokimons on the action board
     }
 
 }

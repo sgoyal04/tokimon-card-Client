@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
@@ -388,17 +389,44 @@ public class ClientApplication extends Application {
     }
 
     /**
-     * This function displays the complete details of the tokimon.
+     * This function displays the complete details of the tokimon
+     * and allows users to edit and save tokimon information.
      * @param tokimon a tokimon
      * @param actionBoard   grid pane to display tokimon details.
      */
     public void viewTokimonDetails(Tokimon tokimon,GridPane actionBoard){
 
-        Label name = new Label(tokimon.getName());
         ImageView img = new ImageView(new Image(tokimon.getImagePath()));
-        Label type = new Label("Type: " + tokimon.getType());
-        Label rarity = new Label( "Rarity Score" + tokimon.getRarityScore());
-        VBox vbox = new VBox(name,img,type,rarity);
+        Label name = new Label("Name:   ");
+        Label type = new Label("Type:   ");
+        Label rarity = new Label( "Rarity Score   ");
+
+        TextField nameField = new TextField(tokimon.getName());
+        TextField typeField = new TextField(tokimon.getType());
+        TextField rarityField = new TextField(String.valueOf(tokimon.getRarityScore()));
+
+        HBox nameBox = new HBox(name, nameField);
+        HBox typeBox = new HBox(type,typeField);
+        HBox rarityBox = new HBox(rarity,rarityField);
+
+        Label statusLabel = new Label();
+
+        Button editChanges = new Button("Save Changes");
+
+        editChanges.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                Label success = new Label();
+                tokimon.setName(nameField.getText());
+                tokimon.setType(typeField.getText());
+                tokimon.setRarityScore(Integer.parseInt(rarityField.getText()));
+
+                editTokimon(tokimon, actionBoard, statusLabel);
+            }
+        });
+
+        VBox vbox = new VBox(img,nameBox,typeBox,rarityBox,editChanges, statusLabel);
         vbox.setSpacing(10);
         vbox.setPadding(new Insets(10, 50, 10, 50));
 
@@ -407,6 +435,41 @@ public class ClientApplication extends Application {
         stage.setScene(scene);
         stage.setTitle(tokimon.getName());
         stage.show();
+    }
+
+    private void editTokimon(Tokimon tokimon, GridPane actionBoard, Label statusLabel) {
+        try {
+            URI uri = new URI("http://localhost:8080/tokimon/edit/" + tokimon.getTid());
+            URL url = uri.toURL();
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-Type", "application/json; utf-8");
+            connection.setDoOutput(true);
+
+            // Convert the updated Tokimon object to JSON
+            Gson gson = new Gson();
+            String jsonInputString = gson.toJson(tokimon);
+
+            // Write JSON input string to the connection output
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                statusLabel.setText("Changes saved successfully!");
+                System.out.println("Tokimon updated successfully!");
+                refreshTokimonCards(actionBoard); // Refresh the tokimon cards
+            } else {
+                statusLabel.setText("Failed to save changes.");
+                System.out.println("Failed to update Tokimon. Response code: " + responseCode);
+            }
+
+            connection.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

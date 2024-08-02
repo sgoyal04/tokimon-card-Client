@@ -388,6 +388,7 @@ public class ClientApplication extends Application {
         displayAllTokiCards(actionBoard);  // Display all the tokimons on the action board
     }
 
+
     /**
      * This function displays the complete details of the tokimon
      * and allows users to edit and save tokimon information.
@@ -400,14 +401,17 @@ public class ClientApplication extends Application {
         Label name = new Label("Name:   ");
         Label type = new Label("Type:   ");
         Label rarity = new Label( "Rarity Score   ");
+        Label image = new Label("Image URL:    ");
 
         TextField nameField = new TextField(tokimon.getName());
         TextField typeField = new TextField(tokimon.getType());
         TextField rarityField = new TextField(String.valueOf(tokimon.getRarityScore()));
+        TextField imageField = new TextField(tokimon.getImagePath());
 
         HBox nameBox = new HBox(name, nameField);
         HBox typeBox = new HBox(type,typeField);
         HBox rarityBox = new HBox(rarity,rarityField);
+        HBox imageBox = new HBox(image, imageField);
 
         Label statusLabel = new Label();
 
@@ -421,12 +425,13 @@ public class ClientApplication extends Application {
                 tokimon.setName(nameField.getText());
                 tokimon.setType(typeField.getText());
                 tokimon.setRarityScore(Integer.parseInt(rarityField.getText()));
+                tokimon.setImagePath(imageField.getText());
 
                 editTokimon(tokimon, actionBoard, statusLabel);
             }
         });
 
-        VBox vbox = new VBox(img,nameBox,typeBox,rarityBox,editChanges, statusLabel);
+        VBox vbox = new VBox(img,nameBox,typeBox,rarityBox,imageBox,editChanges, statusLabel);
         vbox.setSpacing(10);
         vbox.setPadding(new Insets(10, 50, 10, 50));
 
@@ -437,6 +442,12 @@ public class ClientApplication extends Application {
         stage.show();
     }
 
+    /**
+     * this function edits the tokimon.by the tid
+     * @param tokimon the tokimon needed to be chnaged
+     * @param actionBoard grid pane action board
+     * @param statusLabel the 'success' text after user clicks the save changes button
+     */
     private void editTokimon(Tokimon tokimon, GridPane actionBoard, Label statusLabel) {
         try {
             URI uri = new URI("http://localhost:8080/tokimon/edit/" + tokimon.getTid());
@@ -461,6 +472,7 @@ public class ClientApplication extends Application {
                 statusLabel.setText("Changes saved successfully!");
                 System.out.println("Tokimon updated successfully!");
                 refreshTokimonCards(actionBoard); // Refresh the tokimon cards
+
             } else {
                 statusLabel.setText("Failed to save changes.");
                 System.out.println("Failed to update Tokimon. Response code: " + responseCode);

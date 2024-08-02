@@ -524,7 +524,8 @@ public class ClientApplication extends Application {
         acceptStringInput(typeField);
         acceptIntegerInput(rarityField);
 
-        Label statusLabel = new Label();
+        Label messageLabel = new Label();
+        messageLabel.setFont(Font.font(fontName, FontWeight.BOLD, FontPosture.REGULAR, 15));
 
         Button saveChanges = new Button("Save");
         saveChanges.setFont(Font.font(fontName,18));
@@ -532,13 +533,23 @@ public class ClientApplication extends Application {
             @Override
             public void handle(ActionEvent event) {
 
-                //Change the attributes of tokimon to the required values
-                tokimon.setName(nameField.getText());
-                tokimon.setType(typeField.getText());
-                tokimon.setRarityScore(Integer.parseInt(rarityField.getText()));
-                tokimon.setImagePath(imageField.getText());
+                if (isValidImageURL(imageField.getText())) {
+                    //Change the attributes of tokimon to the required values
+                    tokimon.setName(nameField.getText());
+                    tokimon.setType(typeField.getText());
+                    tokimon.setRarityScore(Integer.parseInt(rarityField.getText()));
+                    tokimon.setImagePath(imageField.getText());
 
-                editTokimon(tokimon, actionBoard, statusLabel);     //Edit tokimon details on the server.
+                    editTokimon(tokimon, actionBoard);
+                    messageLabel.setText("Saved!");
+                    messageLabel.setFont(Font.font(fontName,20));
+                    messageLabel.setStyle("-fx-text-fill: black;");
+
+                } else {
+                    messageLabel.setText("Invalid url.");
+                    messageLabel.setFont(Font.font(fontName,20));//display error message
+                    messageLabel.setStyle("-fx-text-fill: red;");
+                }
             }
         });
 
@@ -554,7 +565,7 @@ public class ClientApplication extends Application {
         tokimonCard.add(rarityField, 1, 3);
         tokimonCard.add(imageField, 1, 4);
         tokimonCard.add(saveChanges, 0, 5);
-        tokimonCard.add(statusLabel, 0, 6);
+        tokimonCard.add(messageLabel, 0, 6);
         tokimonCard.setPadding(new Insets(20));
         tokimonCard.setVgap(10);
         tokimonCard.setHgap(10);
@@ -595,9 +606,8 @@ public class ClientApplication extends Application {
      * this function edits the tokimon.by the tid
      * @param tokimon the tokimon needed to be chnaged
      * @param actionBoard grid pane action board
-     * @param statusLabel the 'success' text after user clicks the save changes button
      */
-    private void editTokimon(Tokimon tokimon, GridPane actionBoard, Label statusLabel) {
+    private void editTokimon(Tokimon tokimon, GridPane actionBoard) {
         try {
             URI uri = new URI("http://localhost:8080/tokimon/edit/" + tokimon.getTid());
             URL url = uri.toURL();
@@ -615,12 +625,12 @@ public class ClientApplication extends Application {
 
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                statusLabel.setText("Changes saved!");
+                //statusLabel.setText("Changes saved!");
                 System.out.println("Tokimon updated successfully!");
                 refreshTokimonCards(actionBoard); // Refresh the tokimon cards
 
             } else {
-                statusLabel.setText("Failed to save changes.");
+                //statusLabel.setText("Failed to save changes.");
                 System.out.println("Failed to update Tokimon. Response code: " + responseCode);
             }
 

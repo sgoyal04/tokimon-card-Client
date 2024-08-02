@@ -538,7 +538,11 @@ public class ClientApplication extends Application {
                 tokimon.setRarityScore(Integer.parseInt(rarityField.getText()));
                 tokimon.setImagePath(imageField.getText());
 
-                editTokimon(tokimon, actionBoard, statusLabel);     //Edit tokimon details on the server.
+                //Edit tokimon details on the server.
+                editTokimon(tokimon, actionBoard, statusLabel);
+
+                //Set the image to new image updated by the user
+                img.setImage(new Image(tokimon.getImagePath()));
             }
         });
 

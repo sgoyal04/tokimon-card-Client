@@ -545,9 +545,6 @@ public class ClientApplication extends Application {
                     messageLabel.setFont(Font.font(fontName,20));
                     messageLabel.setStyle("-fx-text-fill: black;");
 
-                    //Edit tokimon details on the server.
-                    editTokimon(tokimon, actionBoard, statusLabel);
-
                     //Set the image to new image updated by the user
                     img.setImage(new Image(tokimon.getImagePath()));
 
@@ -632,15 +629,12 @@ public class ClientApplication extends Application {
 
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                //statusLabel.setText("Changes saved!");
                 System.out.println("Tokimon updated successfully!");
                 refreshTokimonCards(actionBoard); // Refresh the tokimon cards
 
             } else {
-                //statusLabel.setText("Failed to save changes.");
                 System.out.println("Failed to update Tokimon. Response code: " + responseCode);
             }
-
             connection.disconnect();
         } catch (Exception e) {
             e.printStackTrace();

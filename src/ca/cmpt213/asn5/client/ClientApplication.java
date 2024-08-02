@@ -7,6 +7,7 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -41,6 +42,12 @@ import javafx.geometry.HPos;
  */
 public class ClientApplication extends Application {
 
+    // Load the custom font
+    Font font = Font.loadFont(getClass().getResourceAsStream("/fonts/VT323-Regular.ttf"), 40);
+
+    // Use the font name defined in the font file
+    String fontName = "VT323"; // Replace with the actual font name if different
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -48,54 +55,63 @@ public class ClientApplication extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
-        //Creates an action board to display content as per user request.
+
+
+        // Create a heading label with the custom font
+        Label heading = new Label("Tokimon Database");
+        heading.setFont(Font.font(fontName, FontWeight.BOLD, FontPosture.REGULAR, 50));
+
+
+        // Creates an action board to display content as per user request.
         GridPane actionBoard = new GridPane();
         actionBoard.setHgap(10);
         actionBoard.setVgap(10);
 
-        Label heading = new Label("Tokimon Database");
-        heading.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.REGULAR, 20));
-
         Button showTokimons = new Button("Show Tokimons");
+        showTokimons.setFont(Font.font(fontName,18));
         showTokimons.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                //TODO: clear padding on action board
-                actionBoard.setPadding(new Insets(0));
-                actionBoard.getChildren().clear();      //Clear the grid pane before displaying all the tokimons
-                displayAllTokiCards(actionBoard);       // display all the tokimons on the action board
-
+                actionBoard.setPadding(Insets.EMPTY); // Clear padding
+                actionBoard.getChildren().clear(); // Clear the grid pane before displaying all the tokimons
+                displayAllTokiCards(actionBoard); // Display all the tokimons on the action board
             }
         });
 
         Button addTokimons = new Button("Add Tokimons");
+        addTokimons.setFont(Font.font(fontName,18));
         addTokimons.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                //TODO: clear padding on action board
-                actionBoard.setPadding(new Insets(0));
-                actionBoard.getChildren().clear();  //Clear the grid pane before displaying all the tokimons
-                addTokimonControls(actionBoard);   //display the add tokimons controls on the action board.
-
+                actionBoard.setPadding(Insets.EMPTY); // Clear padding
+                actionBoard.getChildren().clear(); // Clear the grid pane before displaying all the tokimons
+                addTokimonControls(actionBoard); // Display the add tokimons controls on the action board
             }
         });
 
-        //Creates an initial control board for tokimon database
+        // Creates an initial control board for tokimon database
         GridPane controlBoard = new GridPane();
-        controlBoard.add(heading, 0, 0);
-        controlBoard.add(showTokimons, 0, 1);
-        controlBoard.add(addTokimons, 1, 1);
+        controlBoard.add(showTokimons, 0, 0);
+        controlBoard.add(addTokimons, 1, 0);
         controlBoard.setHgap(10);
         controlBoard.setVgap(10);
-        controlBoard.setPadding(new Insets(10, 100, 10, 450));
+        controlBoard.setPadding(new Insets(10));
+        controlBoard.setAlignment(Pos.TOP_CENTER); // Center the control board contents
 
-        //Adds control board and actions board to vbox
-        VBox vbox = new VBox(controlBoard, actionBoard);
+        // Create an HBox for the header and set alignment
+        HBox headerBox = new HBox(heading);
+        headerBox.setAlignment(Pos.TOP_CENTER);
+        headerBox.setPadding(new Insets(50, 0, 10, 0)); // Padding at the top for spacing
 
-        //Sets a scene
+        // Adds header, control board, and action board to VBox
+        VBox vbox = new VBox(headerBox, controlBoard, actionBoard);
+        vbox.setSpacing(20);
+        vbox.setAlignment(Pos.TOP_CENTER); // Center contents in VBox
+
+        // Sets a scene
         Scene scene = new Scene(vbox, 1200, 800);
 
-        //Set and show the stage
+        // Set and show the stage
         stage.setScene(scene);
         stage.setTitle("TokimonsData");
         stage.show();
@@ -115,7 +131,7 @@ public class ClientApplication extends Application {
 
         // Creates a heading for the action board
         Label heading = new Label("Add New Tokimon");
-        heading.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.REGULAR, 20));
+        heading.setFont(Font.font(fontName, FontWeight.BOLD, FontPosture.REGULAR, 30));
 
         // Creates controls for the action board
         Label image = new Label("Image URL");
@@ -140,6 +156,11 @@ public class ClientApplication extends Application {
         TextField typeTextField = new TextField();
         TextField rarityTextField = new TextField();
 
+        imageTextField.setPrefWidth(300);
+        nameTextField.setPrefWidth(300);
+        typeTextField.setPrefWidth(300);
+        rarityTextField.setPrefWidth(300);
+
         // Create HBoxes and align them center
         HBox headingBox = new HBox(heading);
         headingBox.setAlignment(Pos.CENTER);
@@ -153,10 +174,11 @@ public class ClientApplication extends Application {
         rarityBox.setAlignment(Pos.CENTER_LEFT);
 
         Button submit = new Button("Submit");
+        submit.setFont(Font.font(fontName,18));
 
         // Label for displaying messages
         Label messageLabel = new Label();
-        messageLabel.setFont(Font.font("Sans", FontWeight.BOLD, FontPosture.REGULAR, 15));
+        messageLabel.setFont(Font.font(fontName, FontWeight.BOLD, FontPosture.REGULAR, 15));
 
         submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -189,9 +211,9 @@ public class ClientApplication extends Application {
     }
 
     /**
-     * checke if the image url the user inputed is valid or not
-     * @param urlString
-     * @return
+     * Checks if the image url the user inputted is valid or not.
+     * @param urlString the url string provided by the tokimon
+     * @return returns the boolean true or false
      */
     private boolean isValidImageURL(String urlString) {
         try {
@@ -212,7 +234,7 @@ public class ClientApplication extends Application {
     }
 
     /**
-     * This function add tokimon to the server
+     * This function adds a tokimon to the server
      * @param imageTextField text field containing image path of the tokimon
      * @param nameTextField text field containing name of the tokimon
      * @param typeTextField text field containing type of the tokimon
@@ -220,7 +242,6 @@ public class ClientApplication extends Application {
      * @param actionBoard grid pane to display
      */
     public void addTokimonToServer(TextField imageTextField, TextField nameTextField, TextField typeTextField, TextField rarityTextField, GridPane actionBoard){
-
 
         String imageText = imageTextField.getText();
         String nameText = nameTextField.getText();
@@ -254,15 +275,11 @@ public class ClientApplication extends Application {
             System.out.println(connection.getResponseCode());
             connection.disconnect();
 
-
             // Clear the text fields
             imageTextField.clear();
             nameTextField.clear();
             typeTextField.clear();
             rarityTextField.clear();
-
-
-
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -275,28 +292,37 @@ public class ClientApplication extends Application {
      */
     private void displayAllTokiCards(GridPane actionBoard) {
 
-        //Creates a heading for the action board
-        Label heading = new Label("Tokimons");
-        heading.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.REGULAR, 20));
+        // Creates a heading for the action board
+        Label heading = new Label("");
 
-        //Creates a list of tokimons
+        //heading.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.REGULAR, 20));
+
+        // Center the heading in its cell
+        GridPane.setHalignment(heading, HPos.CENTER);
+        GridPane.setValignment(heading, VPos.CENTER);
+
+        // Creates a list of tokimons
         List<Tokimon> tokimonList = getTokimonsFromServer();
 
-        //Creates a 2d array of tokimon cards
+        // Creates a 2D array of tokimon cards
         VBox[][] tokimonCards = getTokimonCards(tokimonList, actionBoard);
 
-        //Add heading and tokimon cards to the display board
-        actionBoard.add(heading, 6, 0);
-        for(int i = 0; i < tokimonCards.length; i++) {
-            for(int j = 0; j < tokimonCards[i].length; j++) {
-                if(tokimonCards[i][j] != null) {
-                    actionBoard.add(tokimonCards[i][j], j,i+1);
+        // Add heading and tokimon cards to the display board
+        actionBoard.add(heading, 0, 0, tokimonCards[0].length, 1); // Span the entire width
+        for (int i = 0; i < tokimonCards.length; i++) {
+            for (int j = 0; j < tokimonCards[i].length; j++) {
+                if (tokimonCards[i][j] != null) {
+                    actionBoard.add(tokimonCards[i][j], j, i + 1);
                 }
             }
         }
-        actionBoard.setPadding(new Insets(10, 100, 10, 200));
+
+        actionBoard.setPadding(new Insets(10));
         actionBoard.setVgap(20);
         actionBoard.setHgap(20);
+
+        // Ensure the actionBoard is centered in its parent container
+        actionBoard.setAlignment(Pos.CENTER);
 
     }
 
@@ -340,16 +366,28 @@ public class ClientApplication extends Application {
      */
     public VBox getVbox(Tokimon tokimon, GridPane actionBoard){
 
+        // Load the custom font
+//        Font font = Font.loadFont(getClass().getResourceAsStream("/fonts/VT323-Regular.ttf"), 40);
+//        if (font != null) {
+//            System.out.println("Font loaded successfully.");
+//        } else {
+//            System.out.println("Font loading failed.");
+//        }
         //Label for name
         Label name = new Label(tokimon.getName());
-        name.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+
+
+
+        // Use the font object for the Label
+        name.setFont(Font.font(fontName, FontWeight.BOLD, 30));
+
         HBox nameBox = new HBox(name);
         nameBox.setPadding(new Insets(0, 15, 10, 15));
 
         //Imageview for tokimon image
         ImageView img = new ImageView(new Image(tokimon.getImagePath()));
         //System.out.println(tokimon.getImagePath());
-        img.setFitHeight(90);
+        img.setFitHeight(100);
         img.setPreserveRatio(true);
 
         //Controls to display full tokimon data and delete tokimon card
@@ -375,6 +413,7 @@ public class ClientApplication extends Application {
 
         //Controls to view tokimon details
         Button view = new Button("View");
+        view.setFont(Font.font(fontName,18));
         view.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -384,7 +423,7 @@ public class ClientApplication extends Application {
 
         //Controls to delete tokimon
         Button delete = new Button("Delete");
-
+        delete.setFont(Font.font(fontName,18));
         //delete tokimon from the server
         delete.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -512,6 +551,7 @@ public class ClientApplication extends Application {
 
         //Button to save changes
         Button saveChanges = new Button("Save Changes");
+        saveChanges.setFont(Font.font(fontName,18));
         saveChanges.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {

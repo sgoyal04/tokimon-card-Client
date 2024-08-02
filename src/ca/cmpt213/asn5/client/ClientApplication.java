@@ -29,6 +29,7 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +50,7 @@ public class ClientApplication extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
 
         // Create a heading label with the custom font
         Label heading = new Label("Tokimon Database");
@@ -205,7 +206,7 @@ public class ClientApplication extends Application {
                                                   Integer.parseInt(rarityTextField.getText()));
 
                     //Add tokimon to the server and display a message
-                    addTokimonToServer(tokimon, actionBoard);
+                    addTokimonToServer(tokimon);
                     messageLabel.setText("Tokimon added successfully!");
                     messageLabel.setStyle("-fx-text-fill: black;");
 
@@ -262,9 +263,8 @@ public class ClientApplication extends Application {
     /**
      * This function adds a tokimon to the server
      * @param newTokimon a new tokimon to add to the server
-     * @param actionBoard grid pane to display
      */
-    public void addTokimonToServer(Tokimon newTokimon, GridPane actionBoard){
+    public void addTokimonToServer(Tokimon newTokimon){
 
         try {
             //Starts a connection with the server
@@ -397,7 +397,7 @@ public class ClientApplication extends Application {
      * This function creates a hbox for tokimon controls - (view tokimon or delete tokimon)
      * @param tokimon a tokimon
      * @param actionBoard grid pane where tokimon is displayed on the stage.
-     * @return
+     * @return hbox containing controls to view and delete tokimon
      */
     private HBox getControls(Tokimon tokimon, GridPane actionBoard) {
 
@@ -613,7 +613,7 @@ public class ClientApplication extends Application {
             Gson gson = new Gson();
             String jsonInputString = gson.toJson(tokimon);
             try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes("utf-8");
+                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
 

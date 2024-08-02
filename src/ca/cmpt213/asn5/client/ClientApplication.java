@@ -123,7 +123,7 @@ public class ClientApplication extends Application {
         TextField typeTextField = new TextField();
         TextField rarityTextField = new TextField();
 
-        HBox headingBox = new HBox(10, heading);
+        HBox headingBox = new HBox(heading);
         HBox imageBox = new HBox(10, image, imageTextField);
         HBox nameBox = new HBox(10, name, nameTextField);
         HBox typeBox = new HBox(10, type, typeTextField);
@@ -131,76 +131,83 @@ public class ClientApplication extends Application {
 
         Button submit = new Button("Submit");
 
-
         submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                Label success = new Label("Tokimon successfully added!");
-
-                String imageText = imageTextField.getText();
-                String nameText = nameTextField.getText();
-                String typeText = typeTextField.getText();
-                String rarityText = rarityTextField.getText();
-                try {
-                    URI uri = new URI("http://localhost:8080/tokimon/add");
-                    URL url = uri.toURL();
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("POST");
-                    connection.setDoOutput(true);
-                    connection.setRequestProperty("Content-Type", "application/json");
-
-                    Tokimon newTokimon = new Tokimon();
-                    newTokimon.setImagePath(imageText);
-                    newTokimon.setName(nameText);
-                    newTokimon.setType(typeText);
-                    newTokimon.setRarityScore(Integer.parseInt(rarityText));
-
-                    // Convert Tokimon object to JSON
-                    Gson gson = new Gson();
-                    String json = gson.toJson(newTokimon);
-
-                    // Send JSON to the server
-                    OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
-                    wr.write(json);
-                    wr.flush();
-                    wr.close();
-
-                    connection.connect();
-                    System.out.println(connection.getResponseCode());
-                    connection.disconnect();
-
-
-                    // Clear the text fields
-                    imageTextField.clear();
-                    nameTextField.clear();
-                    typeTextField.clear();
-                    rarityTextField.clear();
-
-                    // Display the success label
-                    actionBoard.getChildren().remove(success);
-                    actionBoard.add(success, 3, 6);
-
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
+                addTokimonToServer(imageTextField,nameTextField,typeTextField,rarityTextField,actionBoard);
             }
         });
 
-
         //Add all the control components to the action board
-        actionBoard.add(headingBox, 5, 0);
-        actionBoard.add(imageBox, 3, 1);
-
-        actionBoard.add(nameBox, 3, 2);
-        actionBoard.add(typeBox, 3, 3);
-        actionBoard.add(rarityBox, 3, 4);
-        actionBoard.add(submit,3,5);
+        actionBoard.add(headingBox, 3, 0);
+        actionBoard.add(imageBox, 3, 2);
+        actionBoard.add(nameBox, 3, 3);
+        actionBoard.add(typeBox, 3, 4);
+        actionBoard.add(rarityBox, 3, 5);
+        actionBoard.add(submit,3,6);
         actionBoard.setPadding(new Insets(10, 100, 10, 450));
 
     }
 
+    /**
+     * This function add tokimon to the server
+     * @param imageTextField text field containing image path of the tokimon
+     * @param nameTextField text field containing name of the tokimon
+     * @param typeTextField text field containing type of the tokimon
+     * @param rarityTextField text field containing rarity of the tokimon
+     * @param actionBoard grid pane to display
+     */
+    public void addTokimonToServer(TextField imageTextField, TextField nameTextField, TextField typeTextField, TextField rarityTextField, GridPane actionBoard){
+        Label success = new Label("Tokimon successfully added!");
 
+        String imageText = imageTextField.getText();
+        String nameText = nameTextField.getText();
+        String typeText = typeTextField.getText();
+        String rarityText = rarityTextField.getText();
+        try {
+            URI uri = new URI("http://localhost:8080/tokimon/add");
+            URL url = uri.toURL();
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "application/json");
+
+            Tokimon newTokimon = new Tokimon();
+            newTokimon.setImagePath(imageText);
+            newTokimon.setName(nameText);
+            newTokimon.setType(typeText);
+            newTokimon.setRarityScore(Integer.parseInt(rarityText));
+
+            // Convert Tokimon object to JSON
+            Gson gson = new Gson();
+            String json = gson.toJson(newTokimon);
+
+            // Send JSON to the server
+            OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
+            wr.write(json);
+            wr.flush();
+            wr.close();
+
+            connection.connect();
+            System.out.println(connection.getResponseCode());
+            connection.disconnect();
+
+
+            // Clear the text fields
+            imageTextField.clear();
+            nameTextField.clear();
+            typeTextField.clear();
+            rarityTextField.clear();
+
+            // Display the success label
+            actionBoard.getChildren().remove(success);
+            actionBoard.add(success, 3, 7);
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * This function inserts all the tokimon cards to the display board
@@ -275,21 +282,47 @@ public class ClientApplication extends Application {
 
         //Label for name
         Label name = new Label(tokimon.getName());
+        name.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        HBox nameBox = new HBox(name);
+        nameBox.setPadding(new Insets(0, 15, 10, 15));
 
         //Imageview for tokimon image
         ImageView img = new ImageView(new Image(tokimon.getImagePath()));
         //System.out.println(tokimon.getImagePath());
-        img.setFitHeight(30);
+        img.setFitHeight(90);
         img.setPreserveRatio(true);
 
-        //Controls to view full tokimon data or delete tokimon card
+        //Controls to display full tokimon data and delete tokimon card
+        HBox controls = getControls(tokimon, actionBoard);
+
+        //Adding all the components to a vbox to make tokimon card
+        VBox vbox = new VBox();
+        vbox.getChildren().add(nameBox);
+        vbox.getChildren().add(img);
+        vbox.getChildren().add(controls);
+
+        return vbox;
+
+    }
+
+    /**
+     * This function creates a hbox for tokimon controls - (view tokimon or delete tokimon)
+     * @param tokimon a tokimon
+     * @param actionBoard grid pane where tokimon is displayed on the stage.
+     * @return
+     */
+    private HBox getControls(Tokimon tokimon, GridPane actionBoard) {
+
+        //Controls to view tokimon details
         Button view = new Button("View");
         view.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                viewTokimonDetails(tokimon,actionBoard);
+                viewTokimonDetails(tokimon, actionBoard);
             }
         });
+
+        //Controls to delete tokimon
         Button delete = new Button("Delete");
 
         //delete tokimon from the server
@@ -300,18 +333,11 @@ public class ClientApplication extends Application {
             }
         });
 
-        HBox hBox = new HBox(view, delete);
-        hBox.setSpacing(10);
+        //Creates a hbox containing view and delete tokimon controls
+        HBox controls = new HBox(view, delete);
+        controls.setSpacing(10);
 
-        //Adding all the components to a vbox to make tokimon card
-        VBox vbox = new VBox();
-        vbox.getChildren().add(name);
-        vbox.getChildren().add(img);
-        vbox.getChildren().add(hBox);
-
-        return vbox;
-
-
+        return controls;
     }
 
     /**
@@ -397,45 +423,71 @@ public class ClientApplication extends Application {
      */
     public void viewTokimonDetails(Tokimon tokimon,GridPane actionBoard){
 
+        //Create an imageview for tokimon image
         ImageView img = new ImageView(new Image(tokimon.getImagePath()));
+        img.setFitHeight(120);
+        img.setPreserveRatio(true);
+
+        //Create label for name,type and rarity
         Label name = new Label("Name:   ");
         Label type = new Label("Type:   ");
-        Label rarity = new Label( "Rarity Score   ");
-        Label image = new Label("Image URL:    ");
 
+        Label rarity = new Label( "Rarity Score:   ");
+
+
+        //Creates text fields to let user edit the tokimon details
         TextField nameField = new TextField(tokimon.getName());
         TextField typeField = new TextField(tokimon.getType());
         TextField rarityField = new TextField(String.valueOf(tokimon.getRarityScore()));
         TextField imageField = new TextField(tokimon.getImagePath());
 
-        HBox nameBox = new HBox(name, nameField);
-        HBox typeBox = new HBox(type,typeField);
-        HBox rarityBox = new HBox(rarity,rarityField);
-        HBox imageBox = new HBox(image, imageField);
 
+//        HBox nameBox = new HBox(name, nameField);
+//        HBox typeBox = new HBox(type,typeField);
+//        HBox rarityBox = new HBox(rarity,rarityField);
+
+
+        //Label to let user know that their changes has been saved.
         Label statusLabel = new Label();
 
-        Button editChanges = new Button("Save Changes");
-
-        editChanges.setOnAction(new EventHandler<ActionEvent>() {
+        //Button to save changes
+        Button saveChanges = new Button("Save Changes");
+        saveChanges.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
 
-                Label success = new Label();
                 tokimon.setName(nameField.getText());
                 tokimon.setType(typeField.getText());
                 tokimon.setRarityScore(Integer.parseInt(rarityField.getText()));
                 tokimon.setImagePath(imageField.getText());
 
-                editTokimon(tokimon, actionBoard, statusLabel);
+                editTokimon(tokimon, actionBoard, statusLabel);     //Edit tokimon details on the server.
             }
         });
 
-        VBox vbox = new VBox(img,nameBox,typeBox,rarityBox,imageBox,editChanges, statusLabel);
-        vbox.setSpacing(10);
-        vbox.setPadding(new Insets(10, 50, 10, 50));
 
-        Scene scene = new Scene(vbox,300,300);
+//        VBox vbox = new VBox(img,nameBox,typeBox,rarityBox,editChanges, statusLabel);
+//        vbox.setSpacing(10);
+//        vbox.setPadding(new Insets(10, 50, 10, 50));
+
+        //Creates a tokimon card for display
+        GridPane tokimonCard = new GridPane();
+        tokimonCard.add(img, 0, 0);
+        tokimonCard.add(name, 0, 1);
+        tokimonCard.add(type, 0, 2);
+        tokimonCard.add(rarity, 0, 3);
+        tokimonCard.add(nameField, 1, 1);
+        tokimonCard.add(typeField, 1, 2);
+        tokimonCard.add(rarityField, 1, 3);
+        tokimonCard.add(saveChanges, 0, 4);
+        tokimonCard.add(statusLabel, 0, 5);
+        tokimonCard.setPadding(new Insets(20));
+        tokimonCard.setVgap(10);
+        tokimonCard.setHgap(10);
+
+        //Creates a new window to display complete details of the tokimon
+        Scene scene = new Scene(tokimonCard,300,350);
+
         Stage stage = new Stage();
         stage.setScene(scene);
         stage.setTitle(tokimon.getName());

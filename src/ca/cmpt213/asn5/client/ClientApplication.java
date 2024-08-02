@@ -414,6 +414,7 @@ public class ClientApplication extends Application {
         displayAllTokiCards(actionBoard);  // Display all the tokimons on the action board
     }
 
+
     /**
      * This function displays the complete details of the tokimon
      * and allows users to edit and save tokimon information.
@@ -430,16 +431,21 @@ public class ClientApplication extends Application {
         //Create label for name,type and rarity
         Label name = new Label("Name:   ");
         Label type = new Label("Type:   ");
+
         Label rarity = new Label( "Rarity Score:   ");
+
 
         //Creates text fields to let user edit the tokimon details
         TextField nameField = new TextField(tokimon.getName());
         TextField typeField = new TextField(tokimon.getType());
         TextField rarityField = new TextField(String.valueOf(tokimon.getRarityScore()));
+        TextField imageField = new TextField(tokimon.getImagePath());
+
 
 //        HBox nameBox = new HBox(name, nameField);
 //        HBox typeBox = new HBox(type,typeField);
 //        HBox rarityBox = new HBox(rarity,rarityField);
+
 
         //Label to let user know that their changes has been saved.
         Label statusLabel = new Label();
@@ -453,10 +459,12 @@ public class ClientApplication extends Application {
                 tokimon.setName(nameField.getText());
                 tokimon.setType(typeField.getText());
                 tokimon.setRarityScore(Integer.parseInt(rarityField.getText()));
+                tokimon.setImagePath(imageField.getText());
 
                 editTokimon(tokimon, actionBoard, statusLabel);     //Edit tokimon details on the server.
             }
         });
+
 
 //        VBox vbox = new VBox(img,nameBox,typeBox,rarityBox,editChanges, statusLabel);
 //        vbox.setSpacing(10);
@@ -479,12 +487,19 @@ public class ClientApplication extends Application {
 
         //Creates a new window to display complete details of the tokimon
         Scene scene = new Scene(tokimonCard,300,350);
+
         Stage stage = new Stage();
         stage.setScene(scene);
         stage.setTitle(tokimon.getName());
         stage.show();
     }
 
+    /**
+     * this function edits the tokimon.by the tid
+     * @param tokimon the tokimon needed to be chnaged
+     * @param actionBoard grid pane action board
+     * @param statusLabel the 'success' text after user clicks the save changes button
+     */
     private void editTokimon(Tokimon tokimon, GridPane actionBoard, Label statusLabel) {
         try {
             URI uri = new URI("http://localhost:8080/tokimon/edit/" + tokimon.getTid());
@@ -509,6 +524,7 @@ public class ClientApplication extends Application {
                 statusLabel.setText("Changes saved successfully!");
                 System.out.println("Tokimon updated successfully!");
                 refreshTokimonCards(actionBoard); // Refresh the tokimon cards
+
             } else {
                 statusLabel.setText("Failed to save changes.");
                 System.out.println("Failed to update Tokimon. Response code: " + responseCode);

@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -31,6 +32,9 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import javafx.geometry.Pos;
+import javafx.geometry.HPos;
 
 /**
  * This class provides a javafx interface to access data from the tokimon database
@@ -103,11 +107,17 @@ public class ClientApplication extends Application {
      */
     private void addTokimonControls(GridPane actionBoard) {
 
-        //Creates a heading for the action board
+        // Center the GridPane
+        actionBoard.setAlignment(Pos.CENTER);
+        actionBoard.setHgap(10); // Horizontal gap between columns
+        actionBoard.setVgap(10); // Vertical gap between rows
+        actionBoard.setPadding(new Insets(20, 20, 20, 20));
+
+        // Creates a heading for the action board
         Label heading = new Label("Add New Tokimon");
         heading.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.REGULAR, 20));
 
-        //Creates controls for the actions board
+        // Creates controls for the action board
         Label image = new Label("Image URL");
         image.setFont(Font.font("Sans", FontWeight.BOLD, FontPosture.REGULAR, 15));
         Label name = new Label("Name");
@@ -117,36 +127,88 @@ public class ClientApplication extends Application {
         Label rarity = new Label("Rarity");
         rarity.setFont(Font.font("Sans", FontWeight.BOLD, FontPosture.REGULAR, 15));
 
-        //Creates text field to collect tokimon information
+        // Set preferred width for labels
+        double labelWidth = 80;
+        image.setPrefWidth(labelWidth);
+        name.setPrefWidth(labelWidth);
+        type.setPrefWidth(labelWidth);
+        rarity.setPrefWidth(labelWidth);
+
+        // Creates text fields to collect Tokimon information
         TextField imageTextField = new TextField();
         TextField nameTextField = new TextField();
         TextField typeTextField = new TextField();
         TextField rarityTextField = new TextField();
 
+        // Create HBoxes and align them center
         HBox headingBox = new HBox(heading);
+        headingBox.setAlignment(Pos.CENTER);
         HBox imageBox = new HBox(10, image, imageTextField);
+        imageBox.setAlignment(Pos.CENTER_LEFT);
         HBox nameBox = new HBox(10, name, nameTextField);
+        nameBox.setAlignment(Pos.CENTER_LEFT);
         HBox typeBox = new HBox(10, type, typeTextField);
+        typeBox.setAlignment(Pos.CENTER_LEFT);
         HBox rarityBox = new HBox(10, rarity, rarityTextField);
+        rarityBox.setAlignment(Pos.CENTER_LEFT);
 
         Button submit = new Button("Submit");
+
+        // Label for displaying messages
+        Label messageLabel = new Label();
+        messageLabel.setFont(Font.font("Sans", FontWeight.BOLD, FontPosture.REGULAR, 15));
 
         submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                addTokimonToServer(imageTextField,nameTextField,typeTextField,rarityTextField,actionBoard);
+                if (isValidImageURL(imageTextField.getText())) {
+                    addTokimonToServer(imageTextField, nameTextField, typeTextField, rarityTextField, actionBoard);
+                    messageLabel.setText("Tokimon added successfully!");
+                    messageLabel.setStyle("-fx-text-fill: black;");
+                } else {
+                    messageLabel.setText("Invalid url, please try again");
+                    messageLabel.setStyle("-fx-text-fill: red;");
+                }
             }
         });
 
-        //Add all the control components to the action board
-        actionBoard.add(headingBox, 3, 0);
-        actionBoard.add(imageBox, 3, 2);
-        actionBoard.add(nameBox, 3, 3);
-        actionBoard.add(typeBox, 3, 4);
-        actionBoard.add(rarityBox, 3, 5);
-        actionBoard.add(submit,3,6);
-        actionBoard.setPadding(new Insets(10, 100, 10, 450));
+        // Add all the control components to the action board
+        actionBoard.add(headingBox, 0, 0, 2, 1); // Span two columns for heading
+        actionBoard.add(imageBox, 0, 1);
+        actionBoard.add(nameBox, 0, 2);
+        actionBoard.add(typeBox, 0, 3);
+        actionBoard.add(rarityBox, 0, 4);
+        actionBoard.add(submit, 0, 5);
+        actionBoard.add(messageLabel, 0, 6, 2, 1); // Span two columns for message label
 
+        // Center the submit button
+        GridPane.setHalignment(submit, HPos.CENTER);
+        // Center the message label
+        GridPane.setHalignment(messageLabel, HPos.CENTER);
+
+    }
+
+    /**
+     * checke if the image url the user inputed is valid or not
+     * @param urlString
+     * @return
+     */
+    private boolean isValidImageURL(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+            if (connection.getResponseCode() == 200) {
+                String contentType = connection.getContentType();
+                if (contentType.startsWith("image/")) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
 
     /**
@@ -158,7 +220,7 @@ public class ClientApplication extends Application {
      * @param actionBoard grid pane to display
      */
     public void addTokimonToServer(TextField imageTextField, TextField nameTextField, TextField typeTextField, TextField rarityTextField, GridPane actionBoard){
-        Label success = new Label("Tokimon successfully added!");
+
 
         String imageText = imageTextField.getText();
         String nameText = nameTextField.getText();
@@ -199,9 +261,7 @@ public class ClientApplication extends Application {
             typeTextField.clear();
             rarityTextField.clear();
 
-            // Display the success label
-            actionBoard.getChildren().remove(success);
-            actionBoard.add(success, 3, 7);
+
 
         }
         catch (Exception e) {
@@ -461,6 +521,7 @@ public class ClientApplication extends Application {
                 tokimon.setRarityScore(Integer.parseInt(rarityField.getText()));
                 tokimon.setImagePath(imageField.getText());
 
+
                 editTokimon(tokimon, actionBoard, statusLabel);     //Edit tokimon details on the server.
             }
         });
@@ -521,7 +582,7 @@ public class ClientApplication extends Application {
 
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                statusLabel.setText("Changes saved successfully!");
+                statusLabel.setText("Changes saved!");
                 System.out.println("Tokimon updated successfully!");
                 refreshTokimonCards(actionBoard); // Refresh the tokimon cards
 
